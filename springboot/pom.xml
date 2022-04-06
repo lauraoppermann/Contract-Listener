@@ -70,7 +70,11 @@
 			<version>1.18.2</version>
 			<scope>provided</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>org.eclipse.persistence</groupId>
+			<artifactId>eclipselink</artifactId>
+			<version>2.5.1</version>
+		</dependency>
 		<dependency>
 			<groupId>su.interference</groupId>
 			<artifactId>interference</artifactId>

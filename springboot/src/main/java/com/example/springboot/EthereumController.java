@@ -6,11 +6,7 @@ import java.math.BigInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
@@ -23,8 +19,6 @@ import org.web3j.tx.RawTransactionManager;
 import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.StaticGasProvider;
-
-import jnr.ffi.Address;
 
 import com.appregistry.AppRegistry;
 

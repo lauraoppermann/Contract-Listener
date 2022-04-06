@@ -1,33 +1,23 @@
-// package com.example.springboot;
+package com.example.springboot;
 
-// import java.util.Arrays;
+import java.io.IOException;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-// import org.springframework.boot.CommandLineRunner;
-// import org.springframework.boot.SpringApplication;
-// import org.springframework.boot.autoconfigure.SpringBootApplication;
-// import org.springframework.context.ApplicationContext;
-// import org.springframework.context.annotation.Bean;
+import su.interference.core.Instance;
+import su.interference.exception.InternalException;
+import su.interference.persistent.Session;
 
-// @SpringBootApplication
-// public class Application {
+@SpringBootApplication
+public class Application {
 
-// public static void main(String[] args) {
-// SpringApplication.run(Application.class, args);
-// }
+	public static void main(String[] args) throws NoSuchMethodException, InternalException, ClassNotFoundException,
+			InstantiationException, IllegalAccessException, IOException, Exception {
+		SpringApplication.run(Application.class, args);
+		Instance instance = Instance.getInstance();
+		Session session = Session.getSession();
+		session.setUserId(1); // seems incorrect and insecure?
+		instance.startupInstance(session);
+	}
 
-// @Bean
-// public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
-// return args -> {
-
-// System.out.println("Let's inspect the beans provided by Spring Boot:");
-
-// String[] beanNames = ctx.getBeanDefinitionNames();
-// Arrays.sort(beanNames);
-// for (String beanName : beanNames) {
-// System.out.println(beanName);
-// }
-
-// };
-// }
-
-// }
+}
