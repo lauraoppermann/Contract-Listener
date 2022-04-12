@@ -30,10 +30,6 @@ public class EthereumController {
     private Web3j web3j = Web3j.build(new UnixIpcService("/home/lauraoppermann/.ethereum/ropsten/geth.ipc"));
     Web3jService web3jService;
 
-    // @Activity
-    // @ApiOperation(value = "Api for fetching accounts in keystore", response =
-    // ResponseEntity.class)
-
     @GetMapping("ethereum/peers")
     public String peers() {
         logger.debug("Trying to get peer count");
@@ -67,16 +63,11 @@ public class EthereumController {
             ECKeyPair ecKeyPair = Keys.createEcKeyPair();
             Credentials credentials = Credentials.create(ecKeyPair);
 
-            // Credentials credentials = Credentials.create(privateKeyString); // create
-            // from string
-
             TransactionManager tManager = new RawTransactionManager(web3j, credentials);
 
             final AppRegistry contract = AppRegistry.load(contractAddress, web3j, tManager, gasProvider);
 
-            // contract.appRegisteredEventEventFlowable(filter).s
-
-            result = contract.getAppID("Facebook").send();
+            result = contract.getAppID("Test").send();
         } catch (IOException e) {
             logger.debug("Exception with web3j", e);
             e.printStackTrace();
@@ -107,28 +98,23 @@ public class EthereumController {
             ECKeyPair ecKeyPair = Keys.createEcKeyPair();
             Credentials credentials = Credentials.create(ecKeyPair);
 
-            // Credentials credentials = Credentials.create(privateKeyString); // create
-            // from string
-
             TransactionManager tManager = new RawTransactionManager(web3j, credentials);
-
             final AppRegistry contract = AppRegistry.load(contractAddress, web3j, tManager, gasProvider);
 
-            // latestBlock = web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST,
-            // false).send();
             web3jService.registerEventListener(contractAddress, BigInteger.ZERO, BigInteger.valueOf(9999L), contract);
-            // } catch (IOException e) {
-            // TODO Auto-generated catch block
-            // e.printStackTrace();
 
-            // logger.info(latestBlock.toString());
-
-            // logger.debug("Exception with web3j", e);
-            // e.printStackTrace();
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return result;
+    }
+
+    @GetMapping("ethereum/get-apps")
+    public String getApps() {
+        web3jService = new Web3jService("test", web3j);
+
+        String apps = web3jService.getApps();
+        return apps;
     }
 }

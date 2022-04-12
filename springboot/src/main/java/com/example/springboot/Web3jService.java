@@ -14,36 +14,24 @@
 
 package com.example.springboot;
 
-import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.web3j.abi.EventEncoder;
-import org.web3j.abi.FunctionReturnDecoder;
-import org.web3j.abi.TypeReference;
-import org.web3j.abi.datatypes.Address;
-import org.web3j.abi.datatypes.Utf8String;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.methods.request.EthFilter;
-import org.web3j.protocol.core.methods.request.Transaction;
-import org.web3j.protocol.core.methods.response.*;
-import org.web3j.protocol.core.methods.response.EthLog.LogResult;
 
-import java.io.IOException;
 import java.math.BigInteger;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.security.KeyPair;
+import java.util.Map;
+import java.util.TreeMap;
 
 import com.appregistry.AppRegistry;
-import com.appregistry.AppRegistry.AppRegisteredEventEventResponse;
+import com.bigchaindb.model.MetaData;
+import com.bigchaindb.util.Base58;
 
 /**
  * A BlockchainService implementating utilising the Web3j library.
@@ -60,32 +48,13 @@ public class Web3jService {
     @Getter
     @Setter
     private Web3j web3j;
-    private static final Logger logger = LoggerFactory.getLogger(EthereumController.class);
+    // private static final Logger logger =
+    // LoggerFactory.getLogger(EthereumController.class);
 
     public Web3jService(String nodeName,
             Web3j web3j) {
         this.nodeName = nodeName;
         this.web3j = web3j;
-    }
-
-    public List<LogResult> retrieveEvents(String contractAddress,
-            BigInteger startBlock,
-            BigInteger endBlock) throws Exception {
-        String encodedEventSignature = EventEncoder.encode(AppRegistry.APPREGISTEREDEVENT_EVENT);
-
-        final EthFilter ethFilter = new EthFilter(new DefaultBlockParameterNumber(startBlock),
-                new DefaultBlockParameterNumber(endBlock), contractAddress);
-
-        ethFilter.addSingleTopic(encodedEventSignature);
-
-        try {
-            final EthLog logs = web3j.ethGetLogs(ethFilter).send();
-            return logs.getLogs();
-
-        } catch (IOException e) {
-            throw new Exception("Error obtaining logs", e);
-        }
-
     }
 
     public void registerEventListener(String contractAddress,
@@ -101,14 +70,6 @@ public class Web3jService {
 
         ethFilter.addSingleTopic(encodedEventSignature);
 
-        final Flowable<Log> flowable = web3j
-                .ethLogFlowable(ethFilter)
-                .doOnComplete(() -> {
-                    System.out.println("doOnComplete");
-                    // if (onCompletion.isPresent()) {
-                    // onCompletion.get().run();
-                    // }
-                });
         final Disposable sub = contract.appRegisteredEventEventFlowable(ethFilter).subscribe(log -> {
 
             System.out.println(log.appId);
@@ -116,6 +77,48 @@ public class Web3jService {
             System.out.println(log.name);
 
             // write into DB
+            BigchainDB examples = new BigchainDB();
+
+            // set configuration
+            BigchainDB.setConfig();
+
+            // generate Keys
+            KeyPair keys = BigchainDB.getKeys();
+
+            System.out.println(Base58.encode(keys.getPublic().getEncoded()));
+            System.out.println(Base58.encode(keys.getPrivate().getEncoded()));
+
+            // create New asset
+            // asset data describes the "object", can not be changed later on
+            Map<String, String> assetData = new TreeMap<String, String>() {
+                {
+                    put("id", log.appId);
+                    put("name", log.name);
+                    put("type", log.appType);
+                }
+            };
+            System.out.println("(*) Assets Prepared..");
+
+            // create metadata
+            // can be changed later
+            MetaData metaData = new MetaData();
+            metaData.setMetaData("description", "");
+            System.out.println("(*) Metadata Prepared..");
+
+            // execute CREATE transaction
+            String txId = examples.doCreate(assetData, metaData, keys);
+
+            // create transfer metadata
+            // this is an update of metadata
+            // MetaData transferMetadata = new MetaData();
+            // transferMetadata.setMetaData("description", "some other description");
+            // System.out.println("(*) Transfer Metadata Prepared..");
+
+            // // let the transaction commit in block
+            // Thread.sleep(5000);
+
+            // // execute TRANSFER transaction on the CREATED asset
+            // examples.doTransfer(txId, transferMetadata, keys);
 
         });
 
@@ -129,6 +132,23 @@ public class Web3jService {
         }
 
         // return new FilterSubscription(eventFilter, sub, startBlock);
+    }
+
+    public String getApps() {
+        // write into DB
+        BigchainDB examples = new BigchainDB();
+
+        // set configuration
+        BigchainDB.setConfig();
+
+        // generate Keys
+        KeyPair keys = BigchainDB.getKeys();
+
+        System.out.println(Base58.encode(keys.getPublic().getEncoded()));
+        System.out.println(Base58.encode(keys.getPrivate().getEncoded()));
+
+        String apps = examples.queryAssets();
+        return apps;
     }
 
 }
