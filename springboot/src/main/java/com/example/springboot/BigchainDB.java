@@ -1,7 +1,9 @@
 package com.example.springboot;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.security.KeyPair;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -174,14 +176,18 @@ public class BigchainDB {
 
     }
 
-    public String queryAssets() {
+    public String queryAssets(String query)
+            throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
         String result = "";
+        List<String> assetList = new ArrayList<String>();
         try {
-            Assets assets = AssetsApi.getAssets("Ikea");
+            Assets assets = AssetsApi.getAssets(query);
             List<Asset> list = assets.getAssets();
-            Object item = list.get(0).getData();
-            item.hashCode();
-            result = assets.toString();
+            for (int i = 0; i < list.size(); i++) {
+                String item = list.get(i).getData().toString();
+                assetList.add(item);
+            }
+            result = assetList.toString();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
@@ -111,10 +112,11 @@ public class EthereumController {
     }
 
     @GetMapping("ethereum/get-apps")
-    public String getApps() {
+    public String getApps(@RequestParam String query)
+            throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
         web3jService = new Web3jService("test", web3j);
 
-        String apps = web3jService.getApps();
+        String apps = web3jService.getApps(query);
         return apps;
     }
 }

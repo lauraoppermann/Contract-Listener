@@ -62,13 +62,18 @@ public class Web3jService {
             BigInteger endBlock, AppRegistry contract
     // Optional<Runnable> onCompletion
     ) {
-        System.out.println("Registering event filter for event: {}");
+        System.out.println("Registering event filter for event: AppRegisteredEvent");
         String encodedEventSignature = EventEncoder.encode(AppRegistry.APPREGISTEREDEVENT_EVENT);
 
         final EthFilter ethFilter = new EthFilter(new DefaultBlockParameterNumber(startBlock),
                 new DefaultBlockParameterNumber(endBlock), contractAddress);
 
         ethFilter.addSingleTopic(encodedEventSignature);
+
+        web3j.replayPastTransactionsFlowable(new DefaultBlockParameterNumber(startBlock),
+                new DefaultBlockParameterNumber(endBlock)).subscribe(tx -> {
+
+                });
 
         final Disposable sub = contract.appRegisteredEventEventFlowable(ethFilter).subscribe(log -> {
 
@@ -134,20 +139,15 @@ public class Web3jService {
         // return new FilterSubscription(eventFilter, sub, startBlock);
     }
 
-    public String getApps() {
+    public String getApps(String query)
+            throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
         // write into DB
         BigchainDB examples = new BigchainDB();
 
         // set configuration
         BigchainDB.setConfig();
 
-        // generate Keys
-        KeyPair keys = BigchainDB.getKeys();
-
-        System.out.println(Base58.encode(keys.getPublic().getEncoded()));
-        System.out.println(Base58.encode(keys.getPrivate().getEncoded()));
-
-        String apps = examples.queryAssets();
+        String apps = examples.queryAssets(query);
         return apps;
     }
 

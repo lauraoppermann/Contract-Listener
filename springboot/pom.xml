@@ -76,11 +76,10 @@
 			<version>2.5.1</version>
 		</dependency>
 		<dependency>
-			<groupId>su.interference</groupId>
-			<artifactId>interference</artifactId>
-			<version>2021.1</version>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongo-java-driver</artifactId>
+			<version>3.4.1</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.bigchaindb</groupId>
 			<artifactId>bigchaindb-driver</artifactId>
