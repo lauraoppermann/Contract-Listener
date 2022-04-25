@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.web3j.abi.EventEncoder;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.methods.request.EthFilter;
 
@@ -69,11 +70,6 @@ public class Web3jService {
                 new DefaultBlockParameterNumber(endBlock), contractAddress);
 
         ethFilter.addSingleTopic(encodedEventSignature);
-
-        web3j.replayPastTransactionsFlowable(new DefaultBlockParameterNumber(startBlock),
-                new DefaultBlockParameterNumber(endBlock)).subscribe(tx -> {
-
-                });
 
         final Disposable sub = contract.appRegisteredEventEventFlowable(ethFilter).subscribe(log -> {
 

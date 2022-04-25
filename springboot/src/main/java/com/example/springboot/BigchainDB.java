@@ -18,6 +18,7 @@ import com.bigchaindb.model.FulFill;
 import com.bigchaindb.model.GenericCallback;
 import com.bigchaindb.model.MetaData;
 import com.bigchaindb.model.Transaction;
+import com.google.gson.Gson;
 
 import org.web3j.abi.datatypes.Array;
 
@@ -179,15 +180,16 @@ public class BigchainDB {
     public String queryAssets(String query)
             throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
         String result = "";
-        List<String> assetList = new ArrayList<String>();
+        List<Object> assetList = new ArrayList<Object>();
         try {
             Assets assets = AssetsApi.getAssets(query);
             List<Asset> list = assets.getAssets();
             for (int i = 0; i < list.size(); i++) {
-                String item = list.get(i).getData().toString();
+                Object item = list.get(i).getData();
                 assetList.add(item);
             }
-            result = assetList.toString();
+            // result = assetList.toString();
+            result = new Gson().toJson(assetList);
         } catch (IOException e) {
             e.printStackTrace();
         }
