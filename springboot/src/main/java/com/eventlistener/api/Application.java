@@ -1,4 +1,4 @@
-package com.example.springboot;
+package com.eventlistener.api;
 
 import java.io.IOException;
 

@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package com.example.springboot;
+package com.eventlistener.api;
 
 import io.reactivex.disposables.Disposable;
 import lombok.Getter;
