@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,13 +32,20 @@ public class EthereumController {
     private Web3j web3j = Web3j.build(new UnixIpcService("/home/lauraoppermann/.ethereum/ropsten/geth.ipc"));
     Web3jService web3jService;
 
+    @Value("${ethereum.contractAddress}")
+    String contractAddress;
+
+    @GetMapping("ethereum/contract-address")
+    public String getContractAddress() {
+        return contractAddress;
+    }
+
     @GetMapping("ethereum/register-event-listener")
     public String registerEventListener() {
         logger.debug("Receiving app name");
 
         web3jService = new Web3jService("test", web3j);
 
-        String contractAddress = "0xBe6A024148C63C2abBE5685CbeF3603089Ab8727";
         String result = "";
 
         try {
@@ -54,6 +62,8 @@ public class EthereumController {
             TransactionManager tManager = new RawTransactionManager(web3j, credentials);
             final AppRegistry contract = AppRegistry.load(contractAddress, web3j, tManager, gasProvider);
 
+            // find a better end and startblock value, LATEST didnt work as far as I
+            // remember
             web3jService.registerEventListener(contractAddress, BigInteger.valueOf(12000000L),
                     BigInteger.valueOf(12216838L),
                     contract);
