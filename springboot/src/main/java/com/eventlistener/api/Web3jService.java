@@ -19,20 +19,21 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.web3j.abi.EventEncoder;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.methods.request.EthFilter;
 
 import java.math.BigInteger;
-import java.security.KeyPair;
-import java.util.Map;
-import java.util.TreeMap;
 
 import com.appregistry.AppRegistry;
-import com.bigchaindb.model.MetaData;
-import com.bigchaindb.util.Base58;
+import com.eventlistener.api.db.BladeModule;
+import com.eventlistener.api.db.ModuleRepository;
+import com.eventlistener.api.db.MongoDBService;
+
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.stereotype.Service;
 
 /**
  * A BlockchainService implementating utilising the Web3j library.
@@ -40,17 +41,21 @@ import com.bigchaindb.util.Base58;
  * @author Craig Williams <craig.williams@consensys.net>
  */
 @Slf4j
+@EnableMongoRepositories
+@Service
 public class Web3jService {
+    @Autowired
+    public MongoDBService mongoService;
 
-    // private static final String EVENT_EXECUTOR_NAME = "EVENT";
     @Getter
     private String nodeName;
 
     @Getter
     @Setter
     private Web3j web3j;
-    // private static final Logger logger =
-    // LoggerFactory.getLogger(EthereumController.class);
+
+    public Web3jService() {
+    }
 
     public Web3jService(String nodeName,
             Web3j web3j) {
@@ -73,53 +78,16 @@ public class Web3jService {
 
         final Disposable sub = contract.appRegisteredEventEventFlowable(ethFilter).subscribe(log -> {
 
+            System.out.println("Event log output:");
+            System.out.println("-------------------------------");
             System.out.println(log.appId);
             System.out.println(log.appType);
             System.out.println(log.name);
 
-            // write into DB
-            BigchainDB examples = new BigchainDB();
+            // save a couple of customers
+            mongoService.addModule(new BladeModule(log.appId, log.name, log.appType));
 
-            // set configuration
-            BigchainDB.setConfig();
-
-            // generate Keys
-            KeyPair keys = BigchainDB.getKeys();
-
-            System.out.println(Base58.encode(keys.getPublic().getEncoded()));
-            System.out.println(Base58.encode(keys.getPrivate().getEncoded()));
-
-            // create New asset
-            // asset data describes the "object", can not be changed later on
-            Map<String, String> assetData = new TreeMap<String, String>() {
-                {
-                    put("id", log.appId);
-                    put("name", log.name);
-                    put("type", log.appType);
-                }
-            };
-            System.out.println("(*) Assets Prepared..");
-
-            // create metadata
-            // can be changed later
-            MetaData metaData = new MetaData();
-            metaData.setMetaData("description", "");
-            System.out.println("(*) Metadata Prepared..");
-
-            // execute CREATE transaction
-            String txId = examples.doCreate(assetData, metaData, keys);
-
-            // create transfer metadata
-            // this is an update of metadata
-            // MetaData transferMetadata = new MetaData();
-            // transferMetadata.setMetaData("description", "some other description");
-            // System.out.println("(*) Transfer Metadata Prepared..");
-
-            // // let the transaction commit in block
-            // Thread.sleep(5000);
-
-            // // execute TRANSFER transaction on the CREATED asset
-            // examples.doTransfer(txId, transferMetadata, keys);
+            //
 
         });
 
@@ -137,14 +105,26 @@ public class Web3jService {
 
     public String getApps(String query)
             throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-        // write into DB
-        BigchainDB examples = new BigchainDB();
+        // fetch all customers
+        System.out.println("Modules found with findAll():");
+        System.out.println("-------------------------------");
+        for (BladeModule module : mongoService.findAll()) {
+            System.out.println(module);
+        }
+        System.out.println();
 
-        // set configuration
-        BigchainDB.setConfig();
-
-        String apps = examples.queryAssets(query);
-        return apps;
+        // fetch an individual customer
+        System.out.println("Customer found with findByAppName('Ikea'):");
+        System.out.println("--------------------------------");
+        for (BladeModule module : mongoService.findByModuleName("Ikea")) {
+            System.out.println(module);
+        }
+        System.out.println("Customers found with findByAppType('education'):");
+        System.out.println("--------------------------------");
+        for (BladeModule module : mongoService.findByModuleType("education")) {
+            System.out.println(module);
+        }
+        return "some apps";
     }
 
 }

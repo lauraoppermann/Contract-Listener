@@ -1,5 +1,6 @@
 package com.eventlistener.api;
 
+import java.io.IOException;
 import java.math.BigInteger;
 
 import org.slf4j.Logger;
@@ -16,20 +17,25 @@ import org.web3j.crypto.Keys;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthBlock;
-import org.web3j.protocol.ipc.UnixIpcService;
+import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.RawTransactionManager;
 import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.StaticGasProvider;
 
 import com.appregistry.AppRegistry;
+import com.eventlistener.api.db.BladeModule;
+import com.eventlistener.api.db.MongoDBService;
 
 @RestController
 public class EthereumController {
     private static final Logger logger = LoggerFactory.getLogger(EthereumController.class);
 
     @Autowired
-    private Web3j web3j = Web3j.build(new UnixIpcService("/home/lauraoppermann/.ethereum/ropsten/geth.ipc"));
+    MongoDBService mongoService;
+
+    private Web3j web3j = Web3j.build(new HttpService("http://geth:8545"));
+
     Web3jService web3jService;
 
     @Value("${ethereum.contractAddress}")
@@ -40,11 +46,16 @@ public class EthereumController {
         return contractAddress;
     }
 
+    @GetMapping("ethereum/peers")
+    public String getPeerCount() throws IOException {
+        return web3j.netPeerCount().send().getQuantity().toString();
+    }
+
     @GetMapping("ethereum/register-event-listener")
     public String registerEventListener() {
         logger.debug("Receiving app name");
 
-        web3jService = new Web3jService("test", web3j);
+        Web3jService web3jService = new Web3jService("test", web3j);
 
         String result = "";
 
@@ -75,13 +86,26 @@ public class EthereumController {
         return result;
     }
 
-    @GetMapping("ethereum/get-apps")
+    @GetMapping("ethereum/get-all-apps")
     @CrossOrigin(origins = "http://localhost:3000")
-    public String getApps(@RequestParam String query)
+    public String getAllApps()
             throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-        web3jService = new Web3jService("test", web3j);
 
-        String apps = web3jService.getApps(query);
+        String apps = mongoService.findAll().toString();
         return apps;
+    }
+
+    @GetMapping("ethereum/get-apps-by-name")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public String getAppsByName(@RequestParam String name)
+            throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+
+        String apps = mongoService.findByModuleName(name).toString();
+        return apps;
+    }
+
+    @GetMapping("ethereum/create-dummy-app")
+    public void createDummyApp() {
+        mongoService.addModule(new BladeModule("test", "test", "test"));
     }
 }

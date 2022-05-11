@@ -1,4 +1,4 @@
-package com.eventlistener.api;
+package com.eventlistener;
 
 import java.io.IOException;
 
@@ -12,5 +12,4 @@ public class Application {
 			InstantiationException, IllegalAccessException, IOException, Exception {
 		SpringApplication.run(Application.class, args);
 	}
-
 }
