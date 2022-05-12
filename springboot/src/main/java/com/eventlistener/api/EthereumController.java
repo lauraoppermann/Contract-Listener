@@ -55,7 +55,7 @@ public class EthereumController {
     public String registerEventListener() {
         logger.debug("Receiving app name");
 
-        Web3jService web3jService = new Web3jService("test", web3j);
+        Web3jService web3jService = new Web3jService("test", web3j, mongoService);
 
         String result = "";
 
@@ -75,8 +75,8 @@ public class EthereumController {
 
             // find a better end and startblock value, LATEST didnt work as far as I
             // remember
-            web3jService.registerEventListener(contractAddress, BigInteger.valueOf(12000000L),
-                    BigInteger.valueOf(12216838L),
+            web3jService.registerEventListener(contractAddress, BigInteger.valueOf(12100000L),
+                    BigInteger.valueOf(12258799L),
                     contract);
 
         } catch (Exception e) {
@@ -104,8 +104,13 @@ public class EthereumController {
         return apps;
     }
 
-    @GetMapping("ethereum/create-dummy-app")
-    public void createDummyApp() {
-        mongoService.addModule(new BladeModule("test", "test", "test"));
-    }
+    // @GetMapping("ethereum/create-dummy-app")
+    // public void createDummyApp()
+    // throws NoSuchFieldException, SecurityException, IllegalArgumentException,
+    // IllegalAccessException {
+    // // mongoService.addModule(new BladeModule("test", "test", "test"));
+    // Web3jService web3jService = new Web3jService("test", web3j, mongoService);
+
+    // web3jService.createApps();
+    // }
 }

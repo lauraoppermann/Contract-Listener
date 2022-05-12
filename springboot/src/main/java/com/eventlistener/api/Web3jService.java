@@ -40,12 +40,14 @@ import org.springframework.stereotype.Service;
  *
  * @author Craig Williams <craig.williams@consensys.net>
  */
-@Slf4j
-@EnableMongoRepositories
-@Service
+
+@EnableMongoRepositories(basePackages = "com.eventlistener.api.db")
 public class Web3jService {
-    @Autowired
-    public MongoDBService mongoService;
+
+    // @Autowired
+    @Getter
+    @Setter
+    private MongoDBService mongoService;
 
     @Getter
     private String nodeName;
@@ -54,13 +56,11 @@ public class Web3jService {
     @Setter
     private Web3j web3j;
 
-    public Web3jService() {
-    }
-
     public Web3jService(String nodeName,
-            Web3j web3j) {
+            Web3j web3j, MongoDBService mongoService) {
         this.nodeName = nodeName;
         this.web3j = web3j;
+        this.mongoService = mongoService;
     }
 
     public void registerEventListener(String contractAddress,
@@ -79,17 +79,21 @@ public class Web3jService {
         final Disposable sub = contract.appRegisteredEventEventFlowable(ethFilter).subscribe(log -> {
 
             System.out.println("Event log output:");
+            System.out.println(log.log.getBlockNumber());
             System.out.println("-------------------------------");
             System.out.println(log.appId);
             System.out.println(log.appType);
             System.out.println(log.name);
 
             // save a couple of customers
-            mongoService.addModule(new BladeModule(log.appId, log.name, log.appType));
+
+            BladeModule module = new BladeModule(log.appId, log.name, log.appType);
+            System.out.println(module.toString());
+            mongoService.addModule(module);
 
             //
 
-        });
+        }, Throwable::printStackTrace);
 
         if (sub.isDisposed())
 
@@ -103,28 +107,13 @@ public class Web3jService {
         // return new FilterSubscription(eventFilter, sub, startBlock);
     }
 
-    public String getApps(String query)
-            throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-        // fetch all customers
-        System.out.println("Modules found with findAll():");
-        System.out.println("-------------------------------");
-        for (BladeModule module : mongoService.findAll()) {
-            System.out.println(module);
-        }
-        System.out.println();
+    // public void createApps()
+    // throws NoSuchFieldException, SecurityException, IllegalArgumentException,
+    // IllegalAccessException {
 
-        // fetch an individual customer
-        System.out.println("Customer found with findByAppName('Ikea'):");
-        System.out.println("--------------------------------");
-        for (BladeModule module : mongoService.findByModuleName("Ikea")) {
-            System.out.println(module);
-        }
-        System.out.println("Customers found with findByAppType('education'):");
-        System.out.println("--------------------------------");
-        for (BladeModule module : mongoService.findByModuleType("education")) {
-            System.out.println(module);
-        }
-        return "some apps";
-    }
+    // BladeModule module = new BladeModule("appId", "name", "appType");
+
+    // mongoService.addModule(module);
+    // }
 
 }
