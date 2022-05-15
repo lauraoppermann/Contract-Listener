@@ -1,13 +1,18 @@
 package com.eventlistener.api.db;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.TextIndexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document(collection = "bladeModule")
 public class BladeModule {
 
   @Id
   public String id;
   public String address;
+  @TextIndexed(weight = 3)
   public String moduleName;
+  @TextIndexed(weight = 1)
   public String moduleType;
 
   public BladeModule() {

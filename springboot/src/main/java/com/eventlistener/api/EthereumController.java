@@ -2,6 +2,7 @@ package com.eventlistener.api;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,19 +89,28 @@ public class EthereumController {
 
     @GetMapping("ethereum/get-all-apps")
     @CrossOrigin(origins = "http://localhost:3000")
-    public String getAllApps()
+    public List<BladeModule> getAllApps()
             throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
-        String apps = mongoService.findAll().toString();
+        List<BladeModule> apps = mongoService.findAll();
         return apps;
     }
 
     @GetMapping("ethereum/get-apps-by-name")
     @CrossOrigin(origins = "http://localhost:3000")
-    public String getAppsByName(@RequestParam String name)
+    public List<BladeModule> getAppsByName(@RequestParam String name)
             throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
-        String apps = mongoService.findByModuleName(name).toString();
+        List<BladeModule> apps = mongoService.findByModuleName(name);
+        return apps;
+    }
+
+    @GetMapping("ethereum/get-apps-filtered")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public List<BladeModule> getAppsFullTextSearch(@RequestParam String query)
+            throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+
+        List<BladeModule> apps = mongoService.fullTextSearch(query);
         return apps;
     }
 
