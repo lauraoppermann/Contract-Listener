@@ -12,39 +12,39 @@ import org.springframework.stereotype.Service;
 @Service
 public class MongoDBService {
     @Autowired
-    private ModuleRepository repository;
+    private AppRepository repository;
 
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public BladeModule addModule(BladeModule module) {
+    public BladeApp addApp(BladeApp app) {
 
-        repository.save(module);
+        repository.save(app);
 
-        return module;
+        return app;
     }
 
-    public List<BladeModule> findAll() {
+    public List<BladeApp> findAll() {
         return repository.findAll();
     }
 
-    public List<BladeModule> findByModuleName(String moduleName) {
-        return repository.findByModuleName(moduleName);
+    public List<BladeApp> findByAppName(String appName) {
+        return repository.findByAppName(appName);
     }
 
-    public List<BladeModule> findByModuleType(String moduleType) {
-        return repository.findByModuleType(moduleType);
+    public List<BladeApp> findByAppType(String appType) {
+        return repository.findByAppType(appType);
     }
 
-    public List<BladeModule> fullTextSearch(String searchPhrase) {
+    public List<BladeApp> fullTextSearch(String searchPhrase) {
         TextCriteria criteria = TextCriteria
                 .forLanguage("en")
                 .matchingAny(searchPhrase);
 
         Query query = TextQuery.queryText(criteria).sortByScore();
 
-        List<BladeModule> modules = mongoTemplate.find(query, BladeModule.class);
+        List<BladeApp> apps = mongoTemplate.find(query, BladeApp.class);
 
-        return modules;
+        return apps;
     }
 }

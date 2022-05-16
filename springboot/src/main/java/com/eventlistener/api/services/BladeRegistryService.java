@@ -12,14 +12,12 @@
  * limitations under the License.
  */
 
-package com.eventlistener.api;
+package com.eventlistener.api.services;
 
 import io.reactivex.disposables.Disposable;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.web3j.abi.EventEncoder;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
@@ -27,13 +25,11 @@ import org.web3j.protocol.core.methods.request.EthFilter;
 
 import java.math.BigInteger;
 
-import com.appregistry.AppRegistry;
-import com.eventlistener.api.db.BladeModule;
-import com.eventlistener.api.db.ModuleRepository;
+import com.bladeregisty.BladeRegistry;
+import com.eventlistener.api.db.BladeApp;
 import com.eventlistener.api.db.MongoDBService;
 
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import org.springframework.stereotype.Service;
 
 /**
  * A BlockchainService implementating utilising the Web3j library.
@@ -42,7 +38,7 @@ import org.springframework.stereotype.Service;
  */
 
 @EnableMongoRepositories(basePackages = "com.eventlistener.api.db")
-public class Web3jService {
+public class BladeRegistryService {
 
     // @Autowired
     @Getter
@@ -56,7 +52,7 @@ public class Web3jService {
     @Setter
     private Web3j web3j;
 
-    public Web3jService(String nodeName,
+    public BladeRegistryService(String nodeName,
             Web3j web3j, MongoDBService mongoService) {
         this.nodeName = nodeName;
         this.web3j = web3j;
@@ -65,11 +61,11 @@ public class Web3jService {
 
     public void registerEventListener(String contractAddress,
             BigInteger startBlock,
-            BigInteger endBlock, AppRegistry contract
+            BigInteger endBlock, BladeRegistry contract
     // Optional<Runnable> onCompletion
     ) {
         System.out.println("Registering event filter for event: AppRegisteredEvent");
-        String encodedEventSignature = EventEncoder.encode(AppRegistry.APPREGISTEREDEVENT_EVENT);
+        String encodedEventSignature = EventEncoder.encode(BladeRegistry.APPREGISTEREDEVENT_EVENT);
 
         final EthFilter ethFilter = new EthFilter(new DefaultBlockParameterNumber(startBlock),
                 new DefaultBlockParameterNumber(endBlock), contractAddress);
@@ -79,19 +75,14 @@ public class Web3jService {
         final Disposable sub = contract.appRegisteredEventEventFlowable(ethFilter).subscribe(log -> {
 
             System.out.println("Event log output:");
-            System.out.println(log.log.getBlockNumber());
             System.out.println("-------------------------------");
-            System.out.println(log.appId);
-            System.out.println(log.appType);
-            System.out.println(log.name);
+            System.out.println(log.appID);
 
             // save a couple of customers
 
-            BladeModule module = new BladeModule(log.appId, log.name, log.appType);
+            BladeApp module = new BladeApp(log.appID, null, null, null, null);
             System.out.println(module.toString());
-            mongoService.addModule(module);
-
-            //
+            mongoService.addApp(module);
 
         }, Throwable::printStackTrace);
 
@@ -106,14 +97,5 @@ public class Web3jService {
 
         // return new FilterSubscription(eventFilter, sub, startBlock);
     }
-
-    // public void createApps()
-    // throws NoSuchFieldException, SecurityException, IllegalArgumentException,
-    // IllegalAccessException {
-
-    // BladeModule module = new BladeModule("appId", "name", "appType");
-
-    // mongoService.addModule(module);
-    // }
 
 }

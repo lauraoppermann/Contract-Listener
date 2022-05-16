@@ -1,6 +1,5 @@
-package com.eventlistener.api;
+package com.eventlistener.api.controller;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -24,39 +23,35 @@ import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.StaticGasProvider;
 
-import com.appregistry.AppRegistry;
-import com.eventlistener.api.db.BladeModule;
+import com.bladeregisty.BladeRegistry;
+import com.eventlistener.api.db.BladeApp;
 import com.eventlistener.api.db.MongoDBService;
+import com.eventlistener.api.services.BladeRegistryService;
 
 @RestController
-public class EthereumController {
-    private static final Logger logger = LoggerFactory.getLogger(EthereumController.class);
+public class BladeRegistryController {
+    private static final Logger logger = LoggerFactory.getLogger(BladeRegistryController.class);
 
     @Autowired
     MongoDBService mongoService;
 
     private Web3j web3j = Web3j.build(new HttpService("http://geth:8545"));
 
-    Web3jService web3jService;
+    BladeRegistryService bladeRegistryService;
 
     @Value("${ethereum.contractAddress}")
     String contractAddress;
 
-    @GetMapping("ethereum/contract-address")
+    @GetMapping("blade/contract-address")
     public String getContractAddress() {
         return contractAddress;
     }
 
-    @GetMapping("ethereum/peers")
-    public String getPeerCount() throws IOException {
-        return web3j.netPeerCount().send().getQuantity().toString();
-    }
-
-    @GetMapping("ethereum/register-event-listener")
+    @GetMapping("blade/marketplace/register-event-listener")
     public String registerEventListener() {
         logger.debug("Receiving app name");
 
-        Web3jService web3jService = new Web3jService("test", web3j, mongoService);
+        BladeRegistryService bladeRegistryService = new BladeRegistryService("test", web3j, mongoService);
 
         String result = "";
 
@@ -72,11 +67,11 @@ public class EthereumController {
             Credentials credentials = Credentials.create(ecKeyPair);
 
             TransactionManager tManager = new RawTransactionManager(web3j, credentials);
-            final AppRegistry contract = AppRegistry.load(contractAddress, web3j, tManager, gasProvider);
+            final BladeRegistry contract = BladeRegistry.load(contractAddress, web3j, tManager, gasProvider);
 
             // find a better end and startblock value, LATEST didnt work as far as I
             // remember
-            web3jService.registerEventListener(contractAddress, BigInteger.valueOf(12100000L),
+            bladeRegistryService.registerEventListener(contractAddress, BigInteger.valueOf(12100000L),
                     BigInteger.valueOf(12258799L),
                     contract);
 
@@ -87,40 +82,31 @@ public class EthereumController {
         return result;
     }
 
-    @GetMapping("ethereum/get-all-apps")
+    @GetMapping("blade/marketplace/get-all-apps")
     @CrossOrigin(origins = "http://localhost:3000")
-    public List<BladeModule> getAllApps()
+    public List<BladeApp> getAllApps()
             throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
-        List<BladeModule> apps = mongoService.findAll();
+        List<BladeApp> apps = mongoService.findAll();
         return apps;
     }
 
-    @GetMapping("ethereum/get-apps-by-name")
+    @GetMapping("blade/marketplace/get-apps-by-name")
     @CrossOrigin(origins = "http://localhost:3000")
-    public List<BladeModule> getAppsByName(@RequestParam String name)
+    public List<BladeApp> getAppsByName(@RequestParam String name)
             throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
-        List<BladeModule> apps = mongoService.findByModuleName(name);
+        List<BladeApp> apps = mongoService.findByAppName(name);
         return apps;
     }
 
-    @GetMapping("ethereum/get-apps-filtered")
+    @GetMapping("blade/marketplace/get-apps-filtered")
     @CrossOrigin(origins = "http://localhost:3000")
-    public List<BladeModule> getAppsFullTextSearch(@RequestParam String query)
+    public List<BladeApp> getAppsFullTextSearch(@RequestParam String query)
             throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
-        List<BladeModule> apps = mongoService.fullTextSearch(query);
+        List<BladeApp> apps = mongoService.fullTextSearch(query);
         return apps;
     }
 
-    // @GetMapping("ethereum/create-dummy-app")
-    // public void createDummyApp()
-    // throws NoSuchFieldException, SecurityException, IllegalArgumentException,
-    // IllegalAccessException {
-    // // mongoService.addModule(new BladeModule("test", "test", "test"));
-    // Web3jService web3jService = new Web3jService("test", web3j, mongoService);
-
-    // web3jService.createApps();
-    // }
 }
