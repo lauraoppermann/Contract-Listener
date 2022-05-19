@@ -25,8 +25,8 @@ import org.web3j.tx.gas.StaticGasProvider;
 
 import com.bladeregisty.BladeRegistry;
 import com.eventlistener.api.db.BladeApp;
-import com.eventlistener.api.db.MongoDBService;
 import com.eventlistener.api.services.BladeRegistryService;
+import com.eventlistener.api.services.MongoDBService;
 
 @RestController
 public class BladeRegistryController {
@@ -39,7 +39,7 @@ public class BladeRegistryController {
 
     BladeRegistryService bladeRegistryService;
 
-    @Value("${ethereum.contractAddress}")
+    @Value("${ethereum.blade-registry.contractAddress}")
     String contractAddress;
 
     @GetMapping("blade/contract-address")
@@ -88,15 +88,6 @@ public class BladeRegistryController {
             throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
         List<BladeApp> apps = mongoService.findAll();
-        return apps;
-    }
-
-    @GetMapping("blade/marketplace/get-apps-by-name")
-    @CrossOrigin(origins = "http://localhost:3000")
-    public List<BladeApp> getAppsByName(@RequestParam String name)
-            throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-
-        List<BladeApp> apps = mongoService.findByAppName(name);
         return apps;
     }
 

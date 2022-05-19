@@ -9,5 +9,4 @@ import org.springframework.stereotype.Repository;
 public interface AppRepository extends MongoRepository<BladeApp, String> {
     public List<BladeApp> findByAppName(String appName);
 
-    public List<BladeApp> findByAppType(String appType);
 }

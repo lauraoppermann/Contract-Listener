@@ -20,6 +20,7 @@ import lombok.Setter;
 
 import org.web3j.abi.EventEncoder;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.methods.request.EthFilter;
 
@@ -27,7 +28,6 @@ import java.math.BigInteger;
 
 import com.bladeregisty.BladeRegistry;
 import com.eventlistener.api.db.BladeApp;
-import com.eventlistener.api.db.MongoDBService;
 
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
@@ -65,37 +65,85 @@ public class BladeRegistryService {
     // Optional<Runnable> onCompletion
     ) {
         System.out.println("Registering event filter for event: AppRegisteredEvent");
-        String encodedEventSignature = EventEncoder.encode(BladeRegistry.APPREGISTEREDEVENT_EVENT);
 
-        final EthFilter ethFilter = new EthFilter(new DefaultBlockParameterNumber(startBlock),
-                new DefaultBlockParameterNumber(endBlock), contractAddress);
+        DefaultBlockParameter start = new DefaultBlockParameterNumber(startBlock);
+        DefaultBlockParameter end = new DefaultBlockParameterNumber(endBlock);
 
-        ethFilter.addSingleTopic(encodedEventSignature);
+        final Disposable subRegisterApp = contract.appRegisteredEventEventFlowable(start,
+                end).subscribe(log -> {
 
-        final Disposable sub = contract.appRegisteredEventEventFlowable(ethFilter).subscribe(log -> {
+                    System.out.println("Event log output:");
+                    System.out.println("-------------------------------");
+                    System.out.println(log.appID);
 
-            System.out.println("Event log output:");
-            System.out.println("-------------------------------");
-            System.out.println(log.appID);
+                    // save a couple of customers
 
-            // save a couple of customers
+                    BladeApp module = new BladeApp(log.appID);
+                    System.out.println("saved appID");
+                    mongoService.addApp(module);
 
-            BladeApp module = new BladeApp(log.appID, null, null, null, null);
-            System.out.println(module.toString());
-            mongoService.addApp(module);
+                }, Throwable::printStackTrace);
 
-        }, Throwable::printStackTrace);
+        final Disposable subSetName = contract
+                .appNameRegisteredEventEventFlowable(start, end)
+                .subscribe(log -> {
 
-        if (sub.isDisposed())
+                    System.out.println("Event log output:");
+                    System.out.println("-------------------------------");
+                    System.out.println(log.appID);
+                    System.out.println(log.appName);
 
-        {
-            // There was an error subscribing
-            // throw new BlockchainException(String.format(
-            // "Failed to subcribe for filter %s. The subscription is disposed.",
-            // eventFilter.getId()));
-        }
+                    // save a couple of customers
 
-        // return new FilterSubscription(eventFilter, sub, startBlock);
+                    System.out.println("update appID with name");
+                    mongoService.updateName(log.appID, log.appName);
+
+                }, Throwable::printStackTrace);
+
+        final Disposable subSetUrl = contract.appVersionURLSetEventEventFlowable(start, end)
+                .subscribe(log -> {
+
+                    System.out.println("Event log output:");
+                    System.out.println("-------------------------------");
+                    System.out.println(log.appID);
+                    System.out.println(log.appURL);
+
+                    // save a couple of customers
+
+                    System.out.println("update appID with name");
+                    mongoService.updateURL(log.appID, log.appURL);
+
+                }, Throwable::printStackTrace);
+
+        final Disposable subSetOwner = contract.appSetOwnerEventEventFlowable(start, end)
+                .subscribe(log -> {
+
+                    System.out.println("Event log output:");
+                    System.out.println("-------------------------------");
+                    System.out.println(log.appID);
+                    System.out.println(log.appOwnerID);
+
+                    // save a couple of customers
+
+                    System.out.println("update appID with name");
+                    mongoService.updateOwner(log.appID, log.appOwnerID);
+
+                }, Throwable::printStackTrace);
+
+        final Disposable subRegisterVersion = contract.appVersionRegisteredEventEventFlowable(start, end)
+                .subscribe(log -> {
+
+                    System.out.println("Event log output:");
+                    System.out.println("-------------------------------");
+                    System.out.println(log.appID);
+                    System.out.println(log.appVersionID);
+
+                    // save a couple of customers
+
+                    System.out.println("update appID with name");
+                    mongoService.updateVersion(log.appID, log.appVersionID);
+
+                }, Throwable::printStackTrace);
     }
 
 }
