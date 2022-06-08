@@ -12,6 +12,10 @@ services:
   mongo_db:
     image: "mongo:4.4.3"
     restart: always
+    environment:
+      - MONGO_INITDB_DATABASE=blade-registry
+    volumes:
+      - ./mongo-volumes:/data/db
     ports:
       - 27017:27017
   geth:
@@ -19,14 +23,9 @@ services:
     restart: always
     volumes:
       - /home/lauraoppermann/ethereum-docker:/home/lauraoppermann/.ethereum
-      # https://github.com/compose-spec/compose-spec/blob/e8db8022c0b2e3d5eb007d629ff684cbe49a17a4/spec.md#short-syntax-4
-      # - '/etc/passwd:/etc/passwd:ro'
-      # - '/etc/group:/etc/group:ro'
     ports:
       # HTTP server / GraphQL API
       - 8545:8545
-      # # WebSocket
-      # - 8546:8546
       # Network listening port (P2P networking)
       - 30303:30303
     command:
@@ -34,11 +33,6 @@ services:
         "--ropsten",
         # Blockchain sync mode ("snap", "full" or "light")
         "--syncmode=light",
-        # Megabytes of memory allocated to internal caching
-      # "--cache=8192",
-      # # Enable the WS-RPC server
-      # "--ws",
-      # "--ws.addr=0.0.0.0",
       # Enable the HTTP-RPC server
         "--http.api=personal,eth,net,web3",
         "--http",
@@ -46,12 +40,5 @@ services:
         "--http.addr=0.0.0.0",
         "--http.vhosts=*",
         "--datadir=/home/lauraoppermann/.ethereum"
-          # "--http.vhosts=*",
-          # Enable GraphQL on the HTTP-RPC server. Note that GraphQL can only be started if an HTTP server is started as well.
-          # "--graphql",
-          # "--graphql.vhosts=*",
-          # Enable metrics collection and reporting
-          # "--metrics",
-          # Ethereum mainnet
-          # "--ropsten"
+
       ]

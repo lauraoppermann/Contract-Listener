@@ -4,8 +4,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import lombok.Setter;
-
 @Document(collection = "bladeApp")
 public class BladeApp {
 

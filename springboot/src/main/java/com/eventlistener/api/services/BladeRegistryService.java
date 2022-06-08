@@ -21,6 +21,7 @@ import lombok.Setter;
 import org.web3j.abi.EventEncoder;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
+import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
 import org.web3j.protocol.core.methods.request.EthFilter;
 
@@ -67,19 +68,18 @@ public class BladeRegistryService {
         System.out.println("Registering event filter for event: AppRegisteredEvent");
 
         DefaultBlockParameter start = new DefaultBlockParameterNumber(startBlock);
-        DefaultBlockParameter end = new DefaultBlockParameterNumber(endBlock);
+        DefaultBlockParameter end = DefaultBlockParameterName.LATEST;
 
         final Disposable subRegisterApp = contract.appRegisteredEventEventFlowable(start,
                 end).subscribe(log -> {
 
-                    System.out.println("Event log output:");
+                    System.out.println("Register AppID:");
                     System.out.println("-------------------------------");
                     System.out.println(log.appID);
 
                     // save a couple of customers
 
                     BladeApp module = new BladeApp(log.appID);
-                    System.out.println("saved appID");
                     mongoService.addApp(module);
 
                 }, Throwable::printStackTrace);
@@ -88,14 +88,13 @@ public class BladeRegistryService {
                 .appNameRegisteredEventEventFlowable(start, end)
                 .subscribe(log -> {
 
-                    System.out.println("Event log output:");
+                    System.out.println("Update AppID with name");
                     System.out.println("-------------------------------");
                     System.out.println(log.appID);
                     System.out.println(log.appName);
 
                     // save a couple of customers
 
-                    System.out.println("update appID with name");
                     mongoService.updateName(log.appID, log.appName);
 
                 }, Throwable::printStackTrace);
@@ -103,14 +102,13 @@ public class BladeRegistryService {
         final Disposable subSetUrl = contract.appVersionURLSetEventEventFlowable(start, end)
                 .subscribe(log -> {
 
-                    System.out.println("Event log output:");
+                    System.out.println("update appID with url");
                     System.out.println("-------------------------------");
                     System.out.println(log.appID);
                     System.out.println(log.appURL);
 
                     // save a couple of customers
 
-                    System.out.println("update appID with name");
                     mongoService.updateURL(log.appID, log.appURL);
 
                 }, Throwable::printStackTrace);
@@ -118,14 +116,14 @@ public class BladeRegistryService {
         final Disposable subSetOwner = contract.appSetOwnerEventEventFlowable(start, end)
                 .subscribe(log -> {
 
-                    System.out.println("Event log output:");
+                    System.out.println("update appID with owner");
+
                     System.out.println("-------------------------------");
                     System.out.println(log.appID);
                     System.out.println(log.appOwnerID);
 
                     // save a couple of customers
 
-                    System.out.println("update appID with name");
                     mongoService.updateOwner(log.appID, log.appOwnerID);
 
                 }, Throwable::printStackTrace);
@@ -133,14 +131,13 @@ public class BladeRegistryService {
         final Disposable subRegisterVersion = contract.appVersionRegisteredEventEventFlowable(start, end)
                 .subscribe(log -> {
 
-                    System.out.println("Event log output:");
+                    System.out.println("update appID with version");
                     System.out.println("-------------------------------");
                     System.out.println(log.appID);
                     System.out.println(log.appVersionID);
 
                     // save a couple of customers
 
-                    System.out.println("update appID with name");
                     mongoService.updateVersion(log.appID, log.appVersionID);
 
                 }, Throwable::printStackTrace);
