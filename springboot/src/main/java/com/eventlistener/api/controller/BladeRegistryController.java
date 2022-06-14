@@ -12,6 +12,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.web3j.crypto.Credentials;
@@ -51,6 +52,7 @@ public class BladeRegistryController {
     }
 
     @EventListener(ApplicationReadyEvent.class)
+    @PostMapping("blade/marketplace/register-event-listener")
     public String registerEventListener() {
         logger.debug("Receiving app name");
 

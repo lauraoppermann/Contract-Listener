@@ -11,7 +11,6 @@ services:
 
   mongo_db:
     image: "mongo:4.4.3"
-    restart: always
     environment:
       - MONGO_INITDB_DATABASE=blade-registry
     volumes:
