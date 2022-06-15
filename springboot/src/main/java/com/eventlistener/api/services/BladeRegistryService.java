@@ -62,7 +62,7 @@ public class BladeRegistryService {
 
     public void registerEventListener(String contractAddress,
             BigInteger startBlock,
-            BigInteger endBlock, BladeRegistry contract
+            BladeRegistry contract
     // Optional<Runnable> onCompletion
     ) {
         System.out.println("Registering event filter for event: AppRegisteredEvent");

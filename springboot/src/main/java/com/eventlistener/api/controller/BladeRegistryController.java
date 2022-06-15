@@ -46,6 +46,9 @@ public class BladeRegistryController {
     @Value("${ethereum.blade-registry.contractAddress}")
     String contractAddress;
 
+    @Value("${ethereum.blade-registry.startBlock}")
+    String startBlock;
+
     @GetMapping("blade/contract-address")
     public String getContractAddress() {
         return contractAddress;
@@ -74,11 +77,7 @@ public class BladeRegistryController {
             TransactionManager tManager = new RawTransactionManager(web3j, credentials);
             final BladeRegistry contract = BladeRegistry.load(contractAddress, web3j, tManager, gasProvider);
 
-            // find a better end and startblock value, LATEST didnt work as far as I
-            // remember
-            bladeRegistryService.registerEventListener(contractAddress, BigInteger.valueOf(12100000L),
-                    BigInteger.valueOf(12258799L),
-                    contract);
+            bladeRegistryService.registerEventListener(contractAddress, new BigInteger(startBlock), contract);
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
