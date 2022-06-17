@@ -12,6 +12,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,7 +55,7 @@ public class BladeRegistryController {
         return contractAddress;
     }
 
-    @EventListener(ApplicationReadyEvent.class)
+    // @EventListener(ApplicationReadyEvent.class)
     @PostMapping("blade/marketplace/register-event-listener")
     public String registerEventListener() {
         logger.debug("Receiving app name");
@@ -86,7 +87,7 @@ public class BladeRegistryController {
         return result;
     }
 
-    @GetMapping("blade/marketplace/get-all-apps")
+    @GetMapping("blade/marketplace/apps")
     @CrossOrigin(origins = "http://localhost:3000")
     public List<BladeApp> getAllApps()
             throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
@@ -95,9 +96,9 @@ public class BladeRegistryController {
         return apps;
     }
 
-    @GetMapping("blade/marketplace/get-apps-filtered")
+    @GetMapping("blade/marketplace/apps/{query}")
     @CrossOrigin(origins = "http://localhost:3000")
-    public List<BladeApp> getAppsFullTextSearch(@RequestParam String query)
+    public List<BladeApp> getAppsFullTextSearch(@PathVariable String query)
             throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
         List<BladeApp> apps = mongoService.fullTextSearch(query);
