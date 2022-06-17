@@ -44,5 +44,9 @@ db.bladeApp.createIndex({appName:"text"})
 
 ## Development
 
-## 
+## Ethereum ropsten net merge
+
+https://decrypt.co/102320/ethereum-merge-ropsten-live
+https://blog.ethereum.org/2022/05/30/ropsten-merge-announcement/
+https://blog.ethereum.org/2022/06/03/ropsten-merge-ttd/
 

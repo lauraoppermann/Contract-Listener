@@ -18,10 +18,10 @@ services:
     ports:
       - 27017:27017
   geth:
-    image: "ethereum/client-go:stable"
+    image: "ethereum/client-go:latest"
     restart: always
     volumes:
-      - /home/lauraoppermann/ethereum-docker:/home/lauraoppermann/.ethereum
+      - ./ethereum-docker:/.ethereum
     ports:
       # HTTP server / GraphQL API
       - 8545:8545
@@ -29,7 +29,7 @@ services:
       - 30303:30303
     command:
       [
-        "--ropsten",
+        "--rinkeby",
         # Blockchain sync mode ("snap", "full" or "light")
         "--syncmode=light",
       # Enable the HTTP-RPC server
@@ -38,6 +38,7 @@ services:
         "--http.corsdomain=*",
         "--http.addr=0.0.0.0",
         "--http.vhosts=*",
-        "--datadir=/home/lauraoppermann/.ethereum"
+        "--datadir=/.ethereum",
+        "--override.terminaltotaldifficulty=50000000000000000"
 
       ]

@@ -32,5 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 
-### MongoDB ###
+### Docker volumes ###
 mongo-volumes/
+ethereum-docker/
